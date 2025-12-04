@@ -1,0 +1,75 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ category.name }} - My Django Blog{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <!-- Category Header -->
+    <div class="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-8 text-white mb-8">
+        <h1 class="text-4xl font-bold mb-2 flex items-center gap-3">
+            <i class="fas fa-folder-open"></i>
+            Category: {{ category.name }}
+        </h1>
+        <p class="text-blue-100">
+            {{ posts.count }} post{{ posts.count|pluralize }} in this category
+        </p>
+    </div>
+    
+    <!-- Posts Grid -->
+    {% if posts %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for post in posts %}
+        <article class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+            <!-- Post Image Placeholder -->
+            <div class="bg-gradient-to-r from-blue-400 to-purple-400 h-48 flex items-center justify-center">
+                <i class="fas fa-newspaper text-white text-6xl opacity-50"></i>
+            </div>
+            
+            <!-- Post Content -->
+            <div class="p-6">
+                <!-- Post Title -->
+                <h2 class="text-xl font-bold text-gray-800 mb-3 hover:text-blue-500 transition">
+                    <a href="{% url 'blog_detail' post.slug %}">
+                        {{ post.title }}
+                    </a>
+                </h2>
+                
+                <!-- Post Meta -->
+                <div class="flex items-center text-sm text-gray-500 mb-4">
+                    <i class="fas fa-calendar text-blue-500 mr-2"></i>
+                    {{ post.created_on|date:"M d, Y" }}
+                </div>
+                
+                <!-- Post Excerpt -->
+                <p class="text-gray-600 mb-4">
+                    {{ post.body|truncatewords:20 }}
+                </p>
+                
+                <!-- Read More Button -->
+                <a href="{% url 'blog_detail' post.slug %}" 
+                   class="inline-flex items-center gap-2 text-blue-500 hover:text-blue-600 font-medium transition">
+                    Read More
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- No Posts -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+        <p class="text-yellow-800">
+            <i class="fas fa-info-circle mr-2"></i>
+            No posts in this category yet.
+        </p>
+    </div>
+    {% endif %}
+    
+    <!-- Back Button -->
+    <a href="{% url 'blog_index' %}" 
+       class="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg mt-8 transition font-medium">
+        <i class="fas fa-arrow-left"></i>
+        Back to All Posts
+    </a>
+</div>
+{% endblock %}

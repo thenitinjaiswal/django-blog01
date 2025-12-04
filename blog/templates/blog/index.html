@@ -1,0 +1,156 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Home - My Django Blog{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Main Content (Left Side - 3 columns) -->
+    <div class="lg:col-span-3">
+        <h1 class="text-4xl font-bold text-gray-800 mb-8">
+            <i class="fas fa-newspaper text-blue-500"></i>
+            Latest Blog Posts
+        </h1>
+
+        <!-- Search Bar -->
+        <form method="GET" action="{% url 'blog_index' %}" class="mb-8">
+            <div class="flex gap-2">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search posts..."
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition flex items-center gap-2">
+                    <i class="fas fa-search"></i>
+                    Search
+                </button>
+            </div>
+        </form>
+
+        <!-- Blog Posts Grid -->
+        {% if posts %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {% for post in posts %}
+            <article
+                class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <!-- Post Image Placeholder -->
+                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-48 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-white text-6xl opacity-50"></i>
+                </div>
+
+                <!-- Post Content -->
+                <div class="p-6">
+                    <!-- Post Title -->
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3 hover:text-blue-500 transition">
+                        <a href="{% url 'blog_detail' post.slug %}">
+                            {{ post.title }}
+                        </a>
+                    </h2>
+
+                    <!-- In the post meta section of index.html -->
+                    <div class="flex items-center text-sm text-gray-500 mb-4 gap-4">
+                        <span>
+                            <i class="fas fa-calendar text-blue-500"></i>
+                            {{ post.created_on|date:"M d, Y" }}
+                        </span>
+                        <span>
+                            <i class="fas fa-user text-blue-500"></i>
+                            {{ post.author }}
+                        </span>
+                        <!-- NEW: View Counter -->
+                        <span>
+                            <i class="fas fa-eye text-blue-500"></i>
+                            {{ post.views }}
+                        </span>
+                    </div>
+
+
+                    <!-- Post Excerpt -->
+                    <p class="text-gray-600 mb-4">
+                        {{ post.body|truncatewords:30 }}
+                    </p>
+
+                    <!-- Categories -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        {% for category in post.categories.all %}
+                        <a href="{% url 'blog_category' category.name %}"
+                            class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition">
+                            {{ category.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Read More Button -->
+                    <a href="{% url 'blog_detail' post.slug %}"
+                        class="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition font-medium">
+                        Read More
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if posts.has_other_pages %}
+        <nav class="flex justify-center items-center gap-2">
+            {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 transition">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            {% endif %}
+
+            <span class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium">
+                Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+            </span>
+
+            {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}"
+                class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 transition">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <!-- No Posts Found -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-yellow-400 text-2xl mr-4"></i>
+                <div>
+                    <p class="font-medium text-yellow-800">No posts found.</p>
+                    {% if search_query %}
+                    <p class="text-yellow-700">Try a different search term.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar (Right Side - 1 column) -->
+    <aside class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-md p-6 sticky top-20">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-folder text-blue-500"></i>
+                Categories
+            </h3>
+
+            <div class="space-y-2">
+                {% for category in categories %}
+                <a href="{% url 'blog_category' category.name %}"
+                    class="block p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 group-hover:text-blue-600 font-medium">
+                            {{ category.name }}
+                        </span>
+                        <span class="bg-blue-500 text-white text-sm px-2 py-1 rounded-full">
+                            {{ category.posts.count }}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </aside>
+</div>
+{% endblock %}
