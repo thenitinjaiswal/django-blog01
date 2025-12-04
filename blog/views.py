@@ -7,7 +7,7 @@ from .forms import CommentForm
 def blog_detail(request, slug):
     """Display single post with comments and handle comment form."""
     post = get_object_or_404(Post, slug=slug, status='published')
-    post.increment_views()
+    # post.increment_views()
     
     comments = post.comments.filter(active=True)
     
